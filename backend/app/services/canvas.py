@@ -4,7 +4,7 @@ from app.services.websocket import WebSocketService
 
 class CanvasService:
     def __init__(self):
-        self.ws_service = WebSocketService()
+        self.ws_service: WebSocketService = WebSocketService()
         self.canvas = Canvas()
 
     def get_all_pixels(self):
