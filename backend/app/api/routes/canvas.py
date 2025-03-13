@@ -1,9 +1,9 @@
 import json
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from app.api.deps import get_canvas_service
-from app.models.canvas import Pixel, RGBA
+from app.models.canvas import RGBA, Pixel
 from app.services.canvas import CanvasService
 
 router = APIRouter()
@@ -13,7 +13,7 @@ router = APIRouter()
 async def websocket_endpoint(
         websocket: WebSocket,
         client_id: str,
-        canvas_service: CanvasService = Depends(get_canvas_service)
+        canvas_service: CanvasService = Depends(get_canvas_service),
 ):
     # Connect the client
     await canvas_service.ws_service.connect(websocket, client_id)

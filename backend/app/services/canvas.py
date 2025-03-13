@@ -1,4 +1,4 @@
-from app.models.canvas import Pixel, Canvas
+from app.models.canvas import Canvas, Pixel
 from app.services.websocket import WebSocketService
 
 
