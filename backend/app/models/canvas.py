@@ -1,5 +1,4 @@
-from pydantic import BaseModel, field_serializer, ConfigDict
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pydantic_extra_types.color import RGBA
 
 
@@ -9,7 +8,7 @@ class Pixel(BaseModel):
     y: int = Field(frozen=True)
     color: RGBA = Field(frozen=True)
 
-    @field_serializer('color')
+    @field_serializer("color")
     def serialize_rgba(self, color: RGBA):
         return {"r": color.r, "g": color.g, "b": color.b, "alpha": color.alpha}
 

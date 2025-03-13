@@ -1,7 +1,7 @@
 from typing import Dict
 
 from fastapi import WebSocket
-from pydantic import BaseModel, WebsocketUrl, ConfigDict
+from pydantic import BaseModel, ConfigDict, WebsocketUrl
 
 
 class WebSocketConnection(BaseModel):

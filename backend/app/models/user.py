@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, EmailStr, FutureDate
+from pydantic import BaseModel, EmailStr, Field, FutureDate
 
 
 class User(BaseModel):

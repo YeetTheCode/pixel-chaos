@@ -18,7 +18,7 @@ class WebSocketService:
         self.ws_manager.connections[client_id] = WebSocketConnection(
             url=WebsocketUrl(f"ws://localhost:8000/ws/{client_id}"),
             connection=websocket,
-            connected=True
+            connected=True,
         )
 
     def disconnect(self, client_id: str):
