@@ -5,7 +5,7 @@ from app.services.websocket import WebSocketService
 class CanvasService:
     def __init__(self):
         self.ws_service = WebSocketService()
-        self.canvas = Canvas()  # Use the Canvas model instead of separate pixels list
+        self.canvas = Canvas()
 
     def get_all_pixels(self):
         """Get all pixels from the canvas"""
@@ -13,8 +13,10 @@ class CanvasService:
 
     async def update_pixel(self, pixel: Pixel):
         """Update a pixel and broadcast the change to all clients"""
-        # Update the pixel in the canvas model
-        await self.canvas.update_pixel(pixel)
+        self.canvas.update_pixel(pixel)
+
+        # Handle the broadcasting separately in the service layer
+        await self.ws_service.broadcast(pixel.model_dump())
 
 
 # Create a singleton instance
