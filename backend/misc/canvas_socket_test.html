@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>Collaborative Canvas</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .color-picker {
+            margin: 10px 0;
+        }
+
+        #status {
+            margin: 10px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<h1>Collaborative Canvas</h1>
+<div id="status" class="disconnected">Connecting...</div>
+<div class="color-picker">
+    <label for="color">Select color: </label>
+    <input type="color" id="color" value="#000000">
+</div>
+<canvas id="canvas" width="500" height="500"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('color');
+    const statusElement = document.getElementById('status');
+    const pixelSize = 5;
+
+    // Clear canvas with white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Connect to WebSocket with a client ID and explicit port
+    const clientId = 'client-' + Math.random().toString(36).substring(2, 15);
+    const ws = new WebSocket(`ws://localhost:8000/api/ws/${clientId}`);
+
+    ws.onopen = function (event) {
+        console.log("Connection established with server");
+        statusElement.textContent = "Connected";
+        statusElement.className = "connected";
+    };
+
+    ws.onmessage = function (event) {
+        const pixel = JSON.parse(event.data);
+        drawPixel(pixel.x, pixel.y, pixel.color);
+    };
+
+    ws.onclose = function (event) {
+        console.log("Connection closed");
+        statusElement.textContent = "Disconnected";
+        statusElement.className = "disconnected";
+    };
+
+    ws.onerror = function (error) {
+        console.error("WebSocket error:", error);
+        statusElement.textContent = "Connection Error";
+        statusElement.className = "disconnected";
+    };
+
+    // Draw a pixel on the canvas
+    function drawPixel(x, y, color) {
+        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha})`;
+        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+    }
+
+    // Handle canvas clicks
+    canvas.addEventListener('click', function (event) {
+        if (ws.readyState !== WebSocket.OPEN) {
+            console.log("WebSocket not connected, cannot send data");
+            return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / pixelSize);
+        const y = Math.floor((event.clientY - rect.top) / pixelSize);
+
+        // Get color components from the color picker
+        const color = colorPicker.value;
+        const r = parseInt(color.substr(1, 2), 16);
+        const g = parseInt(color.substr(3, 2), 16);
+        const b = parseInt(color.substr(5, 2), 16);
+
+        // Send pixel update to server
+        const pixel = {
+            x: x,
+            y: y,
+            color: {r: r, g: g, b: b, alpha: 1.0}
+        };
+
+        ws.send(JSON.stringify(pixel));
+    });
+</script>
+</body>
+</html>
