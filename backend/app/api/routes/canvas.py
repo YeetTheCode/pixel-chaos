@@ -11,9 +11,9 @@ router = APIRouter()
 
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(
-        websocket: WebSocket,
-        client_id: str,
-        canvas_service: CanvasService = Depends(get_canvas_service),
+    websocket: WebSocket,
+    client_id: str,
+    canvas_service: CanvasService = Depends(get_canvas_service),
 ):
     # Connect the client
     await canvas_service.ws_service.connect(websocket, client_id)
