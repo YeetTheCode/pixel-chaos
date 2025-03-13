@@ -1,15 +1,16 @@
 import json
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 
+from app.api.deps import get_canvas_service
 from app.models.canvas import Pixel, RGBA
-from app.services.canvas import canvas_service  # Import the singleton
+from app.services.canvas import CanvasService
 
 router = APIRouter()
 
 
 @router.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: str):
+async def websocket_endpoint(websocket: WebSocket, client_id: str, canvas_service=Depends(get_canvas_service)):
     # Connect the client
     await canvas_service.ws_service.connect(websocket, client_id)
     try:
@@ -20,7 +21,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         # Handle incoming pixel updates
         while True:
             data = await websocket.receive_text()
-            await handle_pixel_update(data)
+            await handle_pixel_update(data, canvas_service)
 
     except WebSocketDisconnect:
         canvas_service.ws_service.disconnect(client_id)
@@ -29,7 +30,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         canvas_service.ws_service.disconnect(client_id)
 
 
-async def handle_pixel_update(data: str):
+async def handle_pixel_update(data: str, canvas_service: CanvasService):
     """Process incoming pixel update data"""
     try:
         json_data = json.loads(data)
