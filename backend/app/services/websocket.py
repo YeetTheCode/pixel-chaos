@@ -3,7 +3,9 @@ import json
 from fastapi import WebSocket
 from pydantic import WebsocketUrl
 
+from app.models.canvas import Pixel
 from app.models.websocket import WebSocketConnection, WebSocketManager
+from app.schemas.canvas import PixelUpdateMessage
 
 
 class WebSocketService:
@@ -27,13 +29,14 @@ class WebSocketService:
             self.ws_manager.connections[client_id].connected = False
             del self.ws_manager.connections[client_id]
 
-    async def broadcast(self, message: dict):
+    async def broadcast(self, pixel: Pixel):
         """Send a message to all connected clients"""
-        message = json.dumps(message)
+        message = PixelUpdateMessage(type="pixel_update", pixel=pixel)
+        json_message = json.dumps(message.model_dump())
 
         for client_id, connection in list(self.ws_manager.connections.items()):
             if connection.connected:
                 try:
-                    await connection.connection.send_text(message)
+                    await connection.connection.send_text(json_message)
                 except (RuntimeError, OSError):
                     self.disconnect(client_id)

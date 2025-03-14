@@ -14,14 +14,18 @@ class Pixel(BaseModel):
 
 
 class Canvas(BaseModel):
-    pixels: list[Pixel] = []
+    pixels_dict: dict[tuple[int, int], Pixel] = Field(default_factory=dict)
     rows: int = Field(default=100, frozen=True)
     cols: int = Field(default=100, frozen=True)
 
     def update_pixel(self, pixel: Pixel):
-        """Update a pixel in the canvas"""
-        for i, p in enumerate(self.pixels):
-            if p.x == pixel.x and p.y == pixel.y:
-                self.pixels[i] = pixel
-                return
-        self.pixels.append(pixel)
+        """Update a pixel in the canvas in O(1) time"""
+        self.pixels_dict[(pixel.x, pixel.y)] = pixel
+
+    def get_pixel(self, x: int, y: int) -> Pixel:
+        """Get a pixel at the specified coordinates in O(1) time"""
+        return self.pixels_dict.get((x, y))
+
+    def get_all_pixels(self):
+        """Get all pixels as a list"""
+        return list(self.pixels_dict.values())
