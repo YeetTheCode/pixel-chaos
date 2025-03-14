@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from app.api.deps import get_canvas_service
 from app.models.canvas import RGBA, Pixel
+from app.schemas.canvas import InitialStateMessage
 from app.services.canvas import CanvasService
 
 router = APIRouter()
@@ -18,10 +19,10 @@ async def websocket_endpoint(
     # Connect the client
     await canvas_service.ws_service.connect(websocket, client_id)
     try:
-        # Send initial canvas state
-        for pixel in canvas_service.get_all_pixels():
-            await websocket.send_text(json.dumps(pixel.model_dump()))
-
+        # Send entire canvas state as one message
+        all_pixels = canvas_service.get_all_pixels()
+        message = InitialStateMessage(type="initial_state", pixels=all_pixels)
+        await websocket.send_text(json.dumps(message.model_dump()))
         # Handle incoming pixel updates
         while True:
             data = await websocket.receive_text()

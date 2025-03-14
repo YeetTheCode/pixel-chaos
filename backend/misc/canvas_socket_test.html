@@ -60,8 +60,17 @@
     };
 
     ws.onmessage = function (event) {
-        const pixel = JSON.parse(event.data);
-        drawPixel(pixel.x, pixel.y, pixel.color);
+        const data = JSON.parse(event.data);
+
+        if (data.type === "initial_state") {
+            // Handle initial state with all pixels
+            data.pixels.forEach(pixel => {
+                drawPixel(pixel.x, pixel.y, pixel.color);
+            });
+        } else if (data.type === "pixel_update") {
+            // Handle single pixel update
+            drawPixel(data.pixel.x, data.pixel.y, data.pixel.color);
+        }
     };
 
     ws.onclose = function (event) {
