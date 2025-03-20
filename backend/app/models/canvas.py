@@ -1,16 +1,13 @@
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pydantic_extra_types.color import RGBA
+from pydantic_extra_types.color import Color
 
 
 class Pixel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     x: int = Field(frozen=True)
     y: int = Field(frozen=True)
-    color: RGBA = Field(frozen=True)
-
-    @field_serializer("color")
-    def serialize_rgba(self, color: RGBA):
-        return {"r": color.r, "g": color.g, "b": color.b, "alpha": color.alpha}
+    color: Color = Field(frozen=True)
 
 
 class Canvas(BaseModel):
