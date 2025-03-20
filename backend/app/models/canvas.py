@@ -1,5 +1,8 @@
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pydantic_extra_types.color import RGBA
+from datetime import datetime
+
+from beanie import Document
 from pydantic_extra_types.color import Color
 
 
@@ -26,3 +29,15 @@ class Canvas(BaseModel):
     def get_all_pixels(self):
         """Get all pixels as a list"""
         return list(self.pixels_dict.values())
+
+
+class CanvasHistory(Document):
+    pixel: Pixel
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        name = "canvas_history"
+        bson_encoders = {
+            # This tells Beanie to convert Color objects to strings when saving
+            Color: str
+        }
