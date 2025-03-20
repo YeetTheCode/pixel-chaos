@@ -1,10 +1,8 @@
-from uuid import UUID
+from beanie import Document
+from pydantic import EmailStr, Field, FutureDate
 
-from pydantic import BaseModel, EmailStr, Field, FutureDate
 
-
-class User(BaseModel):
-    u: UUID
+class User(Document):
     name: str
     email: EmailStr = Field(frozen=True)
     on_cooldown: bool = False
