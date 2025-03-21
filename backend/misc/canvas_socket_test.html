@@ -61,6 +61,7 @@
 
     ws.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        console.log(data)
 
         if (data.type === "initial_state") {
             // Handle initial state with all pixels
@@ -87,7 +88,7 @@
 
     // Draw a pixel on the canvas
     function drawPixel(x, y, color) {
-        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha})`;
+        ctx.fillStyle = color;
         ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
     }
 
